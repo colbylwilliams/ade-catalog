@@ -1,7 +1,7 @@
 name: CustomRunnerExample
 summary: Basic Terraform example
 description: Deploys an environment using Terraform containing a resource group
-runner: ghcr.io/colbylwilliams/ade-runners/terraform:0.1.3
+runner: ghcr.io/colbylwilliams/ade-runners/terraform:latest
 templatePath: main.tf
 parameters:
   - id: 'name'

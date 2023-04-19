@@ -3,6 +3,8 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
+set -e # exit on error
+
 trace() {
     echo -e "\n>>> $@ ..."
 }
@@ -23,7 +25,7 @@ echo "ADE_ACTION_PARAMETERS: $ADE_ACTION_PARAMETERS"
 
 echo ""
 
-deploymentName=$(date +"%Y-%m-%d-%H%M%S%z")
+deploymentName=$(date +"%Y-%m-%d-%H%M%S")
 echo "deploymentName: $deploymentName"
 
 storageContainer="logs"
@@ -39,50 +41,30 @@ deploymentParameters=$(echo "$ADE_ACTION_PARAMETERS" | jq --compact-output '{ "$
 
 echo "deploymentParameters: $deploymentParameters"
 
-# identity=$( az ad signed-in-user show )
-
 trace "Deploying environment template $ADE_CATALOG_ITEM_TEMPLATE"
 deploymentOutput=$(az deployment group create --name "$deploymentName" \
                                               --subscription "$ADE_ENVIRONMENT_SUBSCRIPTION_ID" \
                                               --resource-group "$ADE_ENVIRONMENT_RESOURCE_GROUP_NAME" \
                                               --template-file "$ADE_CATALOG_ITEM_TEMPLATE" \
-                                              --parameters "$deploymentParameters" 2>&1)
+                                              --parameters "$deploymentParameters" )
+echo "$deploymentOutput"
 
-if [ $? -eq 0 ]; then # deployment successfully created
-    echo "$deploymentOutput"
+trace "Sleeping for 10 seconds..."
 
-    trace "Sleeping for 10 seconds..."
-    sleep 10
-    echo "Resuming"
-else
-    echo -e "\nFailed $?"
-    echo "$deploymentOutput"
-    exit $?
-fi
+sleep 10
+echo "Resuming"
 
 trace "Creating storage account container $storageContainer in $storageAccount"
 containerOutput=$(az storage container create --name "$storageContainer" \
                                               --account-name "$storageAccount" \
-                                              --only-show-errors 2>&1)
-if [ $? -eq 0 ]; then # success
-    echo "$containerOutput"
-else
-    echo -e "\nFailed $?"
-    echo "$containerOutput"
-    exit $?
-fi
+                                              --only-show-errors )
+echo "$containerOutput"
 
 trace "Uploading log file to $storageAccount: $ADE_ACTION_OUTPUT"
 blobOutput=$(az storage blob upload --file "$ADE_ACTION_OUTPUT" \
                                     --account-name "$storageAccount" \
                                     --container-name "$storageContainer" \
-                                    --only-show-errors 2>&1)
-if [ $? -eq 0 ]; then # success
-    echo "$blobOutput"
-else
-    echo -e "\nFailed $?"
-    echo "$blobOutput"
-    exit $?
-fi
+                                    --only-show-errors )
+echo "$blobOutput"
 
 echo -e "\nDone."

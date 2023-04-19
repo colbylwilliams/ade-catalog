@@ -3,12 +3,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-ADE_ACTION_OUTPUT="/Users/colbylwilliams/GitHub/colbylwilliams/ade-catalog/Environments/Storage/testfile.log"
-ADE_ENVIRONMENT_SUBSCRIPTION_ID="e5f715ae-6c72-4a5c-87c8-495590c34828"
-ADE_ENVIRONMENT_RESOURCE_GROUP_NAME="adecolbyteststorage"
-ADE_CATALOG_ITEM_TEMPLATE="/Users/colbylwilliams/GitHub/colbylwilliams/ade-catalog/Environments/Storage/main.bicep"
-ADE_ACTION_PARAMETERS='{ "name": "adecolbyteststorage01" }'
-
 set -e # exit on error
 
 trace() {
